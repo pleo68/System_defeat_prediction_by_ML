@@ -1,0 +1,12 @@
+a1=train_quality2.groupby('user_id').quality_10.mean()
+a1.index
+
+problem = np.zeros(15000)
+# error와 동일한 방법으로 person_idx - 10000 위치에 
+# person_idx의 problem이 한 번이라도 발생했다면 1
+# 없다면 0
+for i in range(len(a1)):
+    problem[a1.index[i]-10000] += a1.values[i]
+problem.shape
+
+problem
