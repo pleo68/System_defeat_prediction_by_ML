@@ -1,0 +1,25 @@
+# ID별 퀄리티 측정 횟수
+train_quality.groupby('user_id').user_id.count()
+
+# ID 별 퀄리티 갯수 만드는 함수
+train_quality_count = train_quality.groupby('user_id').user_id.count()
+
+quality_count_check = np.zeros((15000, 1))
+
+for i in range(len(train_quality_count)):
+    quality_count_check[train_quality_count.index[i]-10000] += train_quality_count.values[i]
+quality_count_check.shape
+
+
+# NA인 변수가 존재해서 임시로 채워넣음
+fill_train_quality = train_quality.fillna(0)
+
+# 퀄리티 0 변수의 변화횟수
+count_id = fill_train_quality.groupby('user_id').user_id
+q0_change_check = np.zeros(15000)
+
+for n in index_list:
+    for m in range(int((count_id.count().values[count_id.count().index == n][0])/12)):
+        every_12_values = fill_train_quality.quality_0[fill_train_quality.user_id == n].iloc[12*m:12*(m+1)].values ##코드 내에 존재하는 quality_0 의 숫자를 변경하면 다른 퀄리티 변수의 변화를 측정할 수 있음.
+        q0_change_check[n-10000] += (len(set(every_12_values)) - 1) #각 ID_quality 별 변화량
+        
