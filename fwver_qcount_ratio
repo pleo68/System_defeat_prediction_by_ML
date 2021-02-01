@@ -1,0 +1,46 @@
+# 펌웨어 버전별 quality 안에 있는 비율을 구함
+fwver_ratio = []
+for i in train_err.groupby('fwver').fwver.count().index:
+    for j in train_quality.groupby('fwver').fwver.count().index:
+        if i == j:
+            fwver_ratio.append([i ,train_quality.groupby('fwver').fwver.count().values[train_quality.groupby('fwver').fwver.count().index == j][0] / train_err.groupby('fwver').fwver.count().values[train_err.groupby('fwver').fwver.count().index == i][0]])
+            
+            
+# 요일별 변수 비율
+
+##날짜로 변환하는 함수
+def day_encoding(x):
+    # string 타입의 Time column을 datetime 타입으로 변경
+    x     = str(x)
+    month = int(x[4:6])
+    day   = int(x[6:8])
+    return month * 100 + day
+    
+train_quality['day'] = train_quality.time.apply(day_encoding)
+
+def weekday_encoding(x): #월 / 주중 / 주말로 구분하는 코드
+    monday_list = [1102, 1109, 1116, 1123, 1130, 1214]
+    tuesday_list = [1103, 1110, 1117, 1124, 1201]
+    wendesday_list = [1104, 1111, 1118, 1125, 1202, 1209]
+    thursday_list = [1105, 1112, 1119, 1126, 1203]
+    friday_list = [1106, 1113, 1120, 1127, 1204, 1211]
+    saturday_list = [1205, 1031, 1107, 1114, 1121, 1128]
+    sunday_list = [1101, 1108, 1115, 1122, 1129]
+    if np.isin(x, monday_list):
+        return 0
+    if np.isin(x, tuesday_list):
+        return 1
+    if np.isin(x, wendesday_list):
+        return 2
+    if np.isin(x, thursday_list):
+        return 3
+    if np.isin(x, friday_list):
+        return 4
+    if np.isin(x, saturday_list):
+        return 5
+    else:
+        return 6
+        
+train_quality['weekday'] = train_quality.day.apply(weekday_encoding)
+
+train_quality.groupby('weekday').user_id.count() / max(train_quality.groupby('weekday').user_id.count())
